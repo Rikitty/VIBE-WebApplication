@@ -4,40 +4,36 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useState } from "react";
-import axiosInstance from "@/server/api/axiosInstance";
 import { useToast } from "@/hooks/use-toast";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
-import { app } from "@/firebaseConfig"; 
-
-
+import { app } from "@/lib/firebaseConfig"; // Firebase config is centralized here.
 
 import {
   Form,
   FormControl,
   FormField,
-  FormDescription,
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import Link from "next/link";
 
+// Validation schema for form inputs
 const signUpSchema = z.object({
-  communityName: z.string({ required_error: "Community name required" }),
+  communityName: z.string({ required_error: "Community name is required" }),
   userName: z.string({ required_error: "Username is required" }),
-  email: z.string().email({ message: "Email is required" }),
-  password: z.string().min(4, { message: "Minimum of 4 characters" }),
+  email: z.string().email({ message: "Invalid email format" }),
+  password: z.string().min(4, { message: "Password must be at least 4 characters long" }),
 });
 
 export default function SignUpForm() {
   const [checked, setChecked] = useState(false);
-  function handleOnChange() {
-    setChecked((prevState) => !prevState);
-  }
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -49,24 +45,45 @@ export default function SignUpForm() {
     },
   });
 
-  const { toast } = useToast();
+  function handleOnChange() {
+    setChecked((prevState) => !prevState);
+  }
 
   const onSubmit = async (values: z.infer<typeof signUpSchema>) => {
+    const auth = getAuth(app); // Initialize Firebase Authentication
+    const db = getFirestore(app); // Initialize Firestore
+
     try {
-      const response = await axiosInstance.post("/register", values);
+      // 1. Create user with Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
+      const user = userCredential.user;
+
+      // 2. Store user data in Firestore
+      await setDoc(doc(db, "tech_leader", user.uid), {
+        community_name: values.communityName,
+        name: values.userName,
+        email: values.email,
+        user_id: user.uid,
+      });
+
+      // Success toast notification
       toast({
         title: "Signup Success!",
-        description: `Welcome, ${response.data.userName}! Your account has been created.`,
+        description: `Welcome, ${values.userName}! Your account has been created.`,
       });
-    } catch (error: unknown) {
-      console.error("Signup failed with error:", error.response?.data || error.message);
-  
+    } catch (error: any) {
+      // Handle errors
+      console.error("Signup failed:", error);
       toast({
         title: "Signup Failed!",
-        description: error.response?.data?.error || "An unexpected error occurred. Please try again.",
+        description: error.message || "An unexpected error occurred. Please try again.",
       });
     }
-  };  
+  };
 
   return (
     <Form {...form}>
@@ -74,6 +91,7 @@ export default function SignUpForm() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 flex flex-col items-start"
       >
+        {/* Community Name */}
         <FormField
           control={form.control}
           name="communityName"
@@ -87,6 +105,8 @@ export default function SignUpForm() {
             </FormItem>
           )}
         />
+
+        {/* Username */}
         <FormField
           control={form.control}
           name="userName"
@@ -94,12 +114,14 @@ export default function SignUpForm() {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl className="w-[25rem] h-12">
-                <Input placeholder="E.g Arjohn" {...field} />
+                <Input placeholder="E.g. John Doe" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Email */}
         <FormField
           control={form.control}
           name="email"
@@ -107,12 +129,14 @@ export default function SignUpForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl className="w-[25rem] h-12">
-                <Input placeholder="aja@gmail.com" {...field} />
+                <Input placeholder="example@gmail.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Password */}
         <FormField
           control={form.control}
           name="password"
@@ -126,6 +150,8 @@ export default function SignUpForm() {
             </FormItem>
           )}
         />
+
+        {/* Checkbox for Terms and Conditions */}
         <div className="flex-1 space-x-2">
           <Checkbox checked={checked} onCheckedChange={handleOnChange} />
           <label
@@ -133,15 +159,17 @@ export default function SignUpForm() {
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
             Accept terms and conditions
-          </label>
+          </label>  
         </div>
+
+        {/* Submit Button */}
         <div className="flex items-center justify-center w-full">
           <Button disabled={!checked} type="submit" className="w-2/3 max-w-xs bg-yellow-400">
             Create account
           </Button>
         </div>
-        
       </form>
+
       <FormDescription className="text-center my-4">
         Already have an account?{" "}
         <Link href="/login" className="text-blue-600">

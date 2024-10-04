@@ -8,7 +8,9 @@ dotenv.config();
 const FIREBASE_CONFIGURATION = process.env.FIREBASE_CONFIGURATION || "";
 
 // Parse the Firebase configuration
-const firebaseConfig: FirebaseOptions = JSON.parse(FIREBASE_CONFIGURATION as string);
+const firebaseConfig: FirebaseOptions = JSON.parse(
+  FIREBASE_CONFIGURATION as string
+);
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

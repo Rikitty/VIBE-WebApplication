@@ -6,9 +6,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 const FIREBASE_CONFIGURATION = process.env.FIREBASE_CONFIGURATION || '';
 
-const firebaseConfig: FirebaseOptions = {
+const firebaseConfig: FirebaseOptions = 
     JSON.parse(FIREBASE_CONFIGURATION as string);
-}
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
