@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
-import "./styles//globals.css";
+import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 
