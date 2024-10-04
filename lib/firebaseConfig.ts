@@ -1,9 +1,6 @@
 import { FirebaseOptions, initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const FIREBASE_CONFIGURATION = process.env.FIREBASE_CONFIGURATION || "";
 
@@ -17,7 +14,7 @@ const firebaseConfig: FirebaseOptions = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-}
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
