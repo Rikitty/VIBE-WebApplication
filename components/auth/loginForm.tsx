@@ -19,6 +19,7 @@ import {
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // Validation schema for form inputs
 const loginSchema = z.object({
@@ -28,6 +29,7 @@ const loginSchema = z.object({
 
 export default function LoginForm() {
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -56,6 +58,7 @@ export default function LoginForm() {
       });
 
       // Redirect or update the UI for logged-in state here, e.g., router.push("/dashboard")
+      router.push("/dashboard")
 
     } catch (error: any) {
       // Handle errors
