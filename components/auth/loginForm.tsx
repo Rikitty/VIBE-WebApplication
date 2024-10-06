@@ -14,7 +14,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription
+  FormDescription,
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -24,7 +24,9 @@ import { useRouter } from "next/navigation";
 // Validation schema for form inputs
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email format" }),
-  password: z.string().min(4, { message: "Password must be at least 4 characters long" }),
+  password: z
+    .string()
+    .min(4, { message: "Password must be at least 4 characters long" }),
 });
 
 export default function LoginForm() {
@@ -58,14 +60,14 @@ export default function LoginForm() {
       });
 
       // Redirect or update the UI for logged-in state here, e.g., router.push("/dashboard")
-      router.push("/dashboard")
-
+      router.push("/dashboard");
     } catch (error: any) {
       // Handle errors
       console.error("Login failed:", error);
       toast({
         title: "Login Failed!",
-        description: error.message || "An unexpected error occurred. Please try again.",
+        description:
+          error.message || "An unexpected error occurred. Please try again.",
       });
     }
   };

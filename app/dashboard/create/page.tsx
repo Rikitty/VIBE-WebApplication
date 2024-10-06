@@ -24,7 +24,7 @@ export default function Create() {
 //   const { userDetails } = useAppSelector((state) => state.user);
 
   return (
-    <div className="flex h-[42rem] flex-col items-center justify-between">
+    <div className="flex h-[42rem] flex-col items-center justify-between">  
       <div className="flex justify-center mt-4">
         {/* {chips.map((chip, index) => (
           <Chip
