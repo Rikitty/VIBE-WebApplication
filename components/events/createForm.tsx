@@ -65,19 +65,26 @@ export default function CreateForm() {
       });
       return;
     }
-
+  
     try {
       const newEvent = {
         ...values,
         userId: user.uid, // Set the userId to the current user's ID from context
         createdAt: new Date().toISOString(),
-        likes: [],
-        joined: [],
       };
-
-      const eventDocRef = doc(db, "events", newEvent.title); // Generate Firestore document with the title as ID
+  
+      // Create the event document in Firestore
+      const eventDocRef = doc(db, "events", newEvent.title); // Using the title as the document ID
       await setDoc(eventDocRef, newEvent);
-
+  
+      // Create subcollections for likes and joined
+      const likesCollectionRef = doc(eventDocRef, "liked", "initial"); // Placeholder initial value, can be empty
+      const joinedCollectionRef = doc(eventDocRef, "joined", "initial"); // Placeholder initial value, can be empty
+  
+      // Initialize the subcollections (could add an empty array or any default value if needed)
+      await setDoc(likesCollectionRef, { userIds: [] });
+      await setDoc(joinedCollectionRef, { userIds: [] });
+  
       toast({
         title: "Event Created!",
         description: `Event "${newEvent.title}" has been created.`,
@@ -91,6 +98,7 @@ export default function CreateForm() {
       });
     }
   }
+  
 
   return (
     <Form {...form}>
