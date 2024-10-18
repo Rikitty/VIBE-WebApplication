@@ -10,8 +10,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
 
 import {
   Form,
@@ -55,6 +56,31 @@ export default function CreateForm() {
       imageUrl: "",
     },
   });
+
+  const [communityName, setCommunityName] = useState<string | null>(null); // State to store the community name
+
+  useEffect(() => {
+    if (user) {
+      const fetchCommunityName = async () => {
+        try {
+          const userDocRef = doc(db, "users", user.uid); // Assuming the 'users' collection holds user info
+          const userDocSnap = await getDoc(userDocRef);
+
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            setCommunityName(userData?.community_name || ""); // Set community name in state
+          } else {
+            console.error("No user document found!");
+          }
+        } catch (error) {
+          console.error("Error fetching community name:", error);
+        }
+      };
+
+      fetchCommunityName();
+    }
+  }, [user]);
+
   const { toast } = useToast();
 
   async function onSubmit(values: FormValues) {
@@ -65,26 +91,27 @@ export default function CreateForm() {
       });
       return;
     }
-  
+
     try {
       const newEvent = {
         ...values,
-        userId: user.uid, // Set the userId to the current user's ID from context
+        community_name: communityName, // Include the community_name from state
+        user_id: user.uid, // Set the user_Id to the current user's ID from context
         createdAt: new Date().toISOString(),
       };
-  
+
       // Create the event document in Firestore
       const eventDocRef = doc(db, "events", newEvent.title); // Using the title as the document ID
       await setDoc(eventDocRef, newEvent);
-  
+
       // Create subcollections for likes and joined
       const likesCollectionRef = doc(eventDocRef, "liked", "initial"); // Placeholder initial value, can be empty
       const joinedCollectionRef = doc(eventDocRef, "joined", "initial"); // Placeholder initial value, can be empty
-  
+
       // Initialize the subcollections (could add an empty array or any default value if needed)
-      await setDoc(likesCollectionRef, { userIds: [] });
-      await setDoc(joinedCollectionRef, { userIds: [] });
-  
+      await setDoc(likesCollectionRef, { user_ids: [] });
+      await setDoc(joinedCollectionRef, { user_ids: [] });
+
       toast({
         title: "Event Created!",
         description: `Event "${newEvent.title}" has been created.`,
@@ -98,7 +125,6 @@ export default function CreateForm() {
       });
     }
   }
-  
 
   return (
     <Form {...form}>
