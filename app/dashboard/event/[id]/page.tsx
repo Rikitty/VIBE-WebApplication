@@ -6,12 +6,18 @@ import { CiHeart } from "react-icons/ci";
 import { FaHeart } from "react-icons/fa";
 import Link from "next/link";
 import { db } from "@/lib/firebaseConfig"; // Firestore instance
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+} from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 
 interface Like {
-  userId: string | null;
+  user_ids: string | null;
 }
 
 interface ExtendedEvent {
@@ -22,7 +28,7 @@ interface ExtendedEvent {
   startDate: Date;
   endDate: Date;
   imageUrl: string | null;
-  userId: string;
+  user_id: string;
   likes?: Like[] | null;
 }
 
@@ -45,15 +51,17 @@ const SingleEventPage: React.FC = () => {
             title: data.title,
             location: data.location,
             description: data.description,
-            startDate: data.startDate.toDate(), // Convert Firestore Timestamp to JS Date
-            endDate: data.endDate.toDate(),     // Convert Firestore Timestamp to JS Date
+            startDate: data.startDate, 
+            endDate: data.endDate, 
             imageUrl: data.imageUrl,
-            userId: data.userId,
+            user_id: data.user_id,
             likes: data.likes || [],
           });
 
           // Check if user has already liked the event
-          setHasLiked(data.likes?.some((like: Like) => like.userId === user?.uid));
+          setHasLiked(
+            data.likes?.some((like: Like) => like.user_ids === user?.uid)
+          );
         } else {
           console.error("Event not found");
         }
@@ -88,8 +96,8 @@ const SingleEventPage: React.FC = () => {
       setEvent({
         ...event,
         likes: hasLiked
-          ? event.likes?.filter((like) => like.userId !== user.uid)
-          : [...(event.likes || []), { userId: user.uid }],
+          ? event.likes?.filter((like) => like.user_ids !== user.uid)
+          : [...(event.likes || []), { user_ids: user.uid }],
       });
     } catch (error) {
       console.error("Error updating likes in Firestore:", error);
