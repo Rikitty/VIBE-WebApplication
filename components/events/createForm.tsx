@@ -51,8 +51,8 @@ export default function CreateForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(createSchema),
     defaultValues: {
-      startDate: startOfToday(),
-      endDate: endOfToday(),
+      startDate: new Date(),
+      endDate: new Date(),
       imageUrl: "",
     },
   });

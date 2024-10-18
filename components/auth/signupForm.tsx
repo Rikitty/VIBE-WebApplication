@@ -63,7 +63,7 @@ export default function SignUpForm() {
       const user = userCredential.user;
 
       // 2. Store user data in Firestore
-      await setDoc(doc(db, "tech_leader", user.uid), {
+      await setDoc(doc(db, "tech_leaders", user.uid), {
         community_name: values.communityName,
         name: values.userName,
         email: values.email,
