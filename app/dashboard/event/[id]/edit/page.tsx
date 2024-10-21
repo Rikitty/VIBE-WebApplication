@@ -23,13 +23,13 @@ const handleChipClick = (chip: string) => {
 };
 
 export default function Edit() {
-//   const { userDetails } = useAppSelector((state) => state.user);
-const router = useRouter();
+  //   const { userDetails } = useAppSelector((state) => state.user);
+  const router = useRouter();
 
-const { eventId } = router.query;  // Destructure eventId from the URL
+  const { id } = router.query; // Destructure eventId from the URL
 
   return (
-    <div className="flex h-[42rem] flex-col items-center justify-between">  
+    <div className="flex h-[42rem] flex-col items-center justify-between">
       <div className="flex justify-center mt-4">
         {/* {chips.map((chip, index) => (
           <Chip
@@ -110,9 +110,9 @@ const { eventId } = router.query;  // Destructure eventId from the URL
             />
           </div> */}
 
- {/* Event Form with eventId */}
- {eventId ? (
-            <EditForm eventId={eventId as string} /> // Ensure eventId is a string
+          {/* Event Form with eventId */}
+          {id ? (
+            <EditForm id={id as string} /> // Ensure eventId is a string
           ) : (
             <p>Loading event...</p>
           )}

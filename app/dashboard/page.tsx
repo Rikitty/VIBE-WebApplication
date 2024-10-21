@@ -17,10 +17,10 @@ interface ExtendedEvent {
   id: string;
   title: string;
   location: string;
-  description: string;
+  details: string;
   date_started: string;
   date_ended: string;
-  imageUrl: string | null;
+  image: string | null;
   user_id: string;
   likes?: Like[];
 }
@@ -116,9 +116,9 @@ const Dashboard: React.FC = () => {
             onClick={() => handleEventClick(item.id)} // Handle event click
           >
             <div className="w-1/3 p-4 flex justify-center">
-              {item.imageUrl && (
+              {item.image && (
                 <img
-                  src={item.imageUrl}
+                  src={item.image}
                   alt="Event"
                   className="w-full h-auto rounded-md"
                 />
@@ -133,7 +133,7 @@ const Dashboard: React.FC = () => {
                 <GrLocation className="ml-2 mr-1" /> {item.location}
               </div>
               <div className="text-sm text-gray-200 mt-2">
-                {item.description}
+                {item.details}
               </div>
 
               <div className="flex justify-between items-center mt-4">

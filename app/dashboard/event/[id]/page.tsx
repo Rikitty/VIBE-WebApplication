@@ -24,10 +24,10 @@ interface ExtendedEvent {
   id: string; // Firestore document ID will be a string
   title: string;
   location: string;
-  description: string;
-  startDate: Date;
-  endDate: Date;
-  imageUrl: string | null;
+  details: string;
+  date_started: Date;
+  date_ended: Date;
+  image: string | null;
   user_id: string;
   likes?: Like[] | null;
 }
@@ -50,10 +50,10 @@ const SingleEventPage: React.FC = () => {
             id: docSnap.id,
             title: data.title,
             location: data.location,
-            description: data.description,
-            startDate: data.startDate, 
-            endDate: data.endDate, 
-            imageUrl: data.imageUrl,
+            details: data.details,
+            date_started: data.date_started, 
+            date_ended: data.date_ended, 
+            image: data.image,
             user_id: data.user_id,
             likes: data.likes || [],
           });
@@ -111,9 +111,9 @@ const SingleEventPage: React.FC = () => {
   return (
     <div className="m-2 mt-8 p-2 bg-gray-800 bg-opacity-60 rounded-md shadow-lg flex">
       <div className="w-1/3 p-4 flex justify-center">
-        {event.imageUrl && (
+        {event.image && (
           <img
-            src={event.imageUrl}
+            src={event.image}
             alt="Event"
             className="w-full h-auto rounded-md"
           />
@@ -124,10 +124,10 @@ const SingleEventPage: React.FC = () => {
         <div className="text-xl font-bold text-white">{event.title}</div>
         <div className="text-sm text-gray-400 flex items-center mt-2">
           <GrCalendar className="mr-1" />
-          {new Date(event.startDate).toDateString()}{" "}
+          {new Date(event.date_started).toDateString()}{" "}
           <GrLocation className="ml-2 mr-1" /> {event.location}
         </div>
-        <div className="text-sm text-gray-200 mt-2">{event.description}</div>
+        <div className="text-sm text-gray-200 mt-2">{event.details}</div>
 
         <div className="flex justify-between items-center mt-4">
           <button
