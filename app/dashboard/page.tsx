@@ -2,7 +2,14 @@
 import React, { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/firebaseConfig"; // Assuming you've already set up Firebase config
-import { collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+} from "firebase/firestore";
 // import Chip from "@/components/chip/Chip";
 import { GrCalendar, GrLocation } from "react-icons/gr";
 import { CiHeart } from "react-icons/ci";
@@ -68,12 +75,12 @@ const Dashboard: React.FC = () => {
     if (hasLiked) {
       // Remove the user's like
       await updateDoc(eventRef, {
-        likes: arrayRemove({ userId })
+        likes: arrayRemove({ userId }),
       });
     } else {
       // Add the user's like
       await updateDoc(eventRef, {
-        likes: arrayUnion({ userId })
+        likes: arrayUnion({ userId }),
       });
     }
     // Refetch the events to update the UI
@@ -129,12 +136,25 @@ const Dashboard: React.FC = () => {
               <div className="text-xl font-bold text-white">{item.title}</div>
               <div className="text-sm text-gray-400 flex items-center mt-2">
                 <GrCalendar className="mr-1" />
-                {new Date(item.date_started).toDateString()}{" "}
+                {/* Format and display the date_started */}
+                {item.date_started &&
+                  new Date(item.date_started).toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}{" "}
+                to {/* Convert string to Date and format */}
+                {item.date_ended &&
+                  new Date(item.date_ended).toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
                 <GrLocation className="ml-2 mr-1" /> {item.location}
               </div>
-              <div className="text-sm text-gray-200 mt-2">
-                {item.details}
-              </div>
+              <div className="text-sm text-gray-200 mt-2">{item.details}</div>
 
               <div className="flex justify-between items-center mt-4">
                 <button

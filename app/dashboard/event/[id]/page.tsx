@@ -39,26 +39,38 @@ const SingleEventPage: React.FC = () => {
   const { user } = useAuth(); // Get authenticated user from FireAuth
 
   useEffect(() => {
-    const fetchEventDetails = async (eventId: string) => {
+    const fetchEventDetails = async (id: string) => {
+      console.log("Fetching event with id:", decodeURIComponent(id)); // Debug: Log Decoded ID
+
       try {
-        const eventRef = doc(db, "events", eventId);
+        const eventRef = doc(db, "events", decodeURIComponent(id)); // Decode the id before passing it to Firestore
         const docSnap = await getDoc(eventRef);
 
         if (docSnap.exists()) {
+          console.log("Event found:", docSnap.data()); // Debug: Log Event Data
+
           const data = docSnap.data();
+
+          // Convert Firestore timestamp to JavaScript Date
+          const date_started = data.date_started?.toDate
+            ? data.date_started.toDate()
+            : new Date(data.date_started);
+          const date_ended = data.date_ended?.toDate
+            ? data.date_ended.toDate()
+            : new Date(data.date_ended);
+
           setEvent({
             id: docSnap.id,
             title: data.title,
             location: data.location,
             details: data.details,
-            date_started: data.date_started, 
-            date_ended: data.date_ended, 
+            date_started, // JavaScript Date object
+            date_ended, // JavaScript Date object
             image: data.image,
             user_id: data.user_id,
             likes: data.likes || [],
           });
 
-          // Check if user has already liked the event
           setHasLiked(
             data.likes?.some((like: Like) => like.user_ids === user?.uid)
           );
@@ -71,7 +83,7 @@ const SingleEventPage: React.FC = () => {
     };
 
     if (id && user) {
-      const eventId = Array.isArray(id) ? id[0] : id;
+      const eventId = decodeURIComponent(Array.isArray(id) ? id[0] : id); // Decode the eventId
       fetchEventDetails(eventId);
     }
   }, [id, user]);
@@ -124,7 +136,19 @@ const SingleEventPage: React.FC = () => {
         <div className="text-xl font-bold text-white">{event.title}</div>
         <div className="text-sm text-gray-400 flex items-center mt-2">
           <GrCalendar className="mr-1" />
-          {new Date(event.date_started).toDateString()}{" "}
+          {event.date_started?.toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+          to {/* Convert string to Date and format */}
+          {event.date_ended?.toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
           <GrLocation className="ml-2 mr-1" /> {event.location}
         </div>
         <div className="text-sm text-gray-200 mt-2">{event.details}</div>
