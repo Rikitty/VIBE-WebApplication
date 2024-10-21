@@ -10,7 +10,7 @@ import { FaHeart } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 
 interface Like {
-  userId: string;
+  user_ids: string;
 }
 
 interface ExtendedEvent {
@@ -21,7 +21,7 @@ interface ExtendedEvent {
   startDate: string;
   endDate: string;
   imageUrl: string | null;
-  userId: string;
+  user_id: string;
   likes?: Like[];
 }
 
@@ -107,7 +107,7 @@ const Dashboard: React.FC = () => {
       </div>
       {events.map((item) => {
         const likes = item.likes || [];
-        const hasLiked = likes.some((like) => like.userId === userId);
+        const hasLiked = likes.some((like) => like.user_ids === userId);
 
         return (
           <div

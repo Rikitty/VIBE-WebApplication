@@ -29,18 +29,33 @@ import { useToast } from "@/hooks/use-toast";
 import { db } from "@/lib/firebaseConfig";
 import { Separator } from "../ui/separator";
 
+// Constants mapping
+const ID = "id";
+const UID = "user_id";
+const COMMUNITYNAME = "community_name";
+const NAME = "name";
+const EMAIL = "email";
+const TITLE = "title";
+const DETAILS = "details";
+const DATESTARTED = "date_started";
+const DATEENDED = "date_ended";
+const DATECREATED = "date_created";
+const LOCATION = "location";
+const TYPE = "type";
+const IMAGE = "image";
+
 const createSchema = z
   .object({
-    title: z.string({ required_error: "Title is required" }),
-    location: z.string({ required_error: "Destination must be specified" }),
-    description: z.string({ required_error: "Description is required" }),
-    startDate: z.date({ required_error: "Start date required" }),
-    endDate: z.date({ required_error: "End date required" }),
-    imageUrl: z.string().optional(),
+    [TITLE]: z.string({ required_error: "Title is required" }),
+    [LOCATION]: z.string({ required_error: "Destination must be specified" }),
+    [DETAILS]: z.string({ required_error: "Description is required" }),
+    [DATESTARTED]: z.date({ required_error: "Start date required" }),
+    [DATEENDED]: z.date({ required_error: "End date required" }),
+    [IMAGE]: z.string().optional(),
   })
-  .refine((data) => data.endDate >= data.startDate, {
+  .refine((data) => data[DATEENDED] >= data[DATESTARTED], {
     message: "End date cannot be before the start date",
-    path: ["endDate"],
+    path: [DATEENDED],
   });
 
 type FormValues = z.infer<typeof createSchema>;
@@ -50,11 +65,6 @@ export default function CreateForm() {
   const { user } = useAuth(); // Get the authenticated user
   const form = useForm<FormValues>({
     resolver: zodResolver(createSchema),
-    defaultValues: {
-      startDate: new Date(),
-      endDate: new Date(),
-      imageUrl: "",
-    },
   });
 
   const [communityName, setCommunityName] = useState<string | null>(null); // State to store the community name
@@ -68,7 +78,7 @@ export default function CreateForm() {
 
           if (userDocSnap.exists()) {
             const userData = userDocSnap.data();
-            setCommunityName(userData?.community_name || ""); // Set community name in state
+            setCommunityName(userData?.[COMMUNITYNAME] || ""); // Set community name in state
           } else {
             console.error("No user document found!");
           }
@@ -95,9 +105,9 @@ export default function CreateForm() {
     try {
       const newEvent = {
         ...values,
-        community_name: communityName, // Include the community_name from state
-        user_id: user.uid, // Set the user_Id to the current user's ID from context
-        createdAt: new Date().toISOString(),
+        [COMMUNITYNAME]: communityName, // Include the community_name from state
+        [UID]: user.uid, // Set the user_Id to the current user's ID from context
+        [DATECREATED]: new Date().toISOString(),
       };
 
       // Create the event document in Firestore
@@ -131,7 +141,7 @@ export default function CreateForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="title"
+          name={TITLE}
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-white">Title</FormLabel>
@@ -150,7 +160,7 @@ export default function CreateForm() {
 
         <FormField
           control={form.control}
-          name="description"
+          name={DETAILS}
           render={({ field }) => (
             <FormItem>
               <FormControl>
@@ -170,7 +180,7 @@ export default function CreateForm() {
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="startDate"
+              name={DATESTARTED}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-white">Start Date</FormLabel>
@@ -210,7 +220,7 @@ export default function CreateForm() {
 
             <FormField
               control={form.control}
-              name="endDate"
+              name={DATEENDED}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-white">End Date</FormLabel>
@@ -251,7 +261,7 @@ export default function CreateForm() {
 
           <FormField
             control={form.control}
-            name="location"
+            name={LOCATION}
             render={({ field }) => (
               <FormItem>
                 <FormControl>
@@ -284,7 +294,7 @@ export default function CreateForm() {
             <PopoverContent>
               <FormField
                 control={form.control}
-                name="imageUrl"
+                name={IMAGE}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-white">

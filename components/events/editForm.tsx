@@ -29,23 +29,38 @@ import { useToast } from "@/hooks/use-toast";
 import { db } from "@/lib/firebaseConfig";
 import { Separator } from "../ui/separator";
 
+// Constants mapping
+const ID = "id";
+const UID = "user_id";
+const COMMUNITYNAME = "community_name";
+const NAME = "name";
+const EMAIL = "email";
+const TITLE = "title";
+const DETAILS = "details";
+const DATESTARTED = "date_started";
+const DATEENDED = "date_ended";
+const DATECREATED = "date_created";
+const LOCATION = "location";
+const TYPE = "type";
+const IMAGE = "image";
+
 const editSchema = z
   .object({
-    title: z.string({ required_error: "Title is required" }),
-    location: z.string({ required_error: "Destination must be specified" }),
-    description: z.string({ required_error: "Description is required" }),
-    startDate: z.date({ required_error: "Start date required" }),
-    endDate: z.date({ required_error: "End date required" }),
-    imageUrl: z.string().optional(),
+    [TITLE]: z.string({ required_error: "Title is required" }),
+    [LOCATION]: z.string({ required_error: "Destination must be specified" }),
+    [DETAILS]: z.string({ required_error: "Description is required" }),
+    [DATESTARTED]: z.date({ required_error: "Start date required" }),
+    [DATEENDED]: z.date({ required_error: "End date required" }),
+    [IMAGE]: z.string().optional(),
   })
-  .refine((data) => data.endDate >= data.startDate, {
+  .refine((data) => data[DATEENDED] >= data[DATESTARTED], {
     message: "End date cannot be before the start date",
-    path: ["endDate"],
+    path: [DATEENDED],
   });
 
 type FormValues = z.infer<typeof editSchema>;
 
-export default function EditForm({ eventId }: { eventId: string }) {
+export default function EditForm({ id }: { id: string }) {
   const router = useRouter();
   const { user } = useAuth(); // Get the authenticated user
   const [loading, setLoading] = useState(true);
@@ -54,19 +69,14 @@ export default function EditForm({ eventId }: { eventId: string }) {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(editSchema),
-    defaultValues: {
-      startDate: startOfToday(),
-      endDate: endOfToday(),
-      imageUrl: "",
-    },
   });
 
   // Fetch event data
   useEffect(() => {
     async function fetchEventData() {
-      if (!eventId) return;
+      if (!id) return;
 
-      const eventDocRef = doc(db, "events", eventId);
+      const eventDocRef = doc(db, "events", id);
       const eventSnapshot = await getDoc(eventDocRef);
 
       if (eventSnapshot.exists()) {
@@ -74,15 +84,15 @@ export default function EditForm({ eventId }: { eventId: string }) {
         form.reset({
           title: eventData.title,
           location: eventData.location,
-          description: eventData.description,
-          startDate: eventData.startDate.toDate(),
-          endDate: eventData.endDate.toDate(),
-          imageUrl: eventData.imageUrl,
+          details: eventData.details,
+          date_started: eventData.date_started.toDate(),
+          date_ended: eventData.date_ended.toDate(),
+          image: eventData.image,
         });
       } else {
         toast({
           title: "Event Not Found",
-          description: `Event with ID "${eventId}" does not exist.`,
+          description: `Event with ID "${id}" does not exist.`,
         });
         router.push("/dashboard");
       }
@@ -109,7 +119,7 @@ export default function EditForm({ eventId }: { eventId: string }) {
     }
 
     fetchEventData();
-  }, [eventId, form, router, toast, user]);
+  }, [id, form, router, toast, user]);
 
   async function onSubmit(values: FormValues) {
     if (!user) {
@@ -123,12 +133,12 @@ export default function EditForm({ eventId }: { eventId: string }) {
     try {
       const updatedEvent = {
         ...values,
-        community_name: communityName, // Include the community_name from state
-        user_id: user.uid, // Set the user_Id to the current user's ID from context
-        createdAt: new Date().toISOString(),
+        [COMMUNITYNAME]: communityName, // Include the community_name from state
+        [UID]: user.uid, // Set the user_Id to the current user's ID from context
+        [DATECREATED]: new Date().toISOString(),
       };
 
-      const eventDocRef = doc(db, "events", eventId);
+      const eventDocRef = doc(db, "events", id);
       await setDoc(eventDocRef, updatedEvent, { merge: true });
 
       toast({
@@ -155,7 +165,7 @@ export default function EditForm({ eventId }: { eventId: string }) {
         {/* Form fields are the same as CreateForm but pre-filled with the event data */}
         <FormField
           control={form.control}
-          name="title"
+          name={TITLE}
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-white">Title</FormLabel>
@@ -174,7 +184,7 @@ export default function EditForm({ eventId }: { eventId: string }) {
 
         <FormField
           control={form.control}
-          name="description"
+          name={DETAILS}
           render={({ field }) => (
             <FormItem>
               <FormControl>
@@ -194,7 +204,7 @@ export default function EditForm({ eventId }: { eventId: string }) {
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="startDate"
+              name={DATESTARTED}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-white">Start Date</FormLabel>
@@ -234,7 +244,7 @@ export default function EditForm({ eventId }: { eventId: string }) {
 
             <FormField
               control={form.control}
-              name="endDate"
+              name={DATEENDED}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-white">End Date</FormLabel>
@@ -275,7 +285,7 @@ export default function EditForm({ eventId }: { eventId: string }) {
 
           <FormField
             control={form.control}
-            name="location"
+            name={LOCATION}
             render={({ field }) => (
               <FormItem>
                 <FormControl>
@@ -308,7 +318,7 @@ export default function EditForm({ eventId }: { eventId: string }) {
             <PopoverContent>
               <FormField
                 control={form.control}
-                name="imageUrl"
+                name={IMAGE}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-white">
