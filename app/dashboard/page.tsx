@@ -18,8 +18,8 @@ interface ExtendedEvent {
   title: string;
   location: string;
   description: string;
-  startDate: string;
-  endDate: string;
+  date_started: string;
+  date_ended: string;
   imageUrl: string | null;
   user_id: string;
   likes?: Like[];
@@ -129,7 +129,7 @@ const Dashboard: React.FC = () => {
               <div className="text-xl font-bold text-white">{item.title}</div>
               <div className="text-sm text-gray-400 flex items-center mt-2">
                 <GrCalendar className="mr-1" />
-                {new Date(item.startDate).toDateString()}{" "}
+                {new Date(item.date_started).toDateString()}{" "}
                 <GrLocation className="ml-2 mr-1" /> {item.location}
               </div>
               <div className="text-sm text-gray-200 mt-2">

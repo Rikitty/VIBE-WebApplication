@@ -73,7 +73,7 @@ export default function CreateForm() {
     if (user) {
       const fetchCommunityName = async () => {
         try {
-          const userDocRef = doc(db, "users", user.uid); // Assuming the 'users' collection holds user info
+          const userDocRef = doc(db, "tech_leaders", user.uid); // Assuming the 'tech_leaders' collection holds user info
           const userDocSnap = await getDoc(userDocRef);
 
           if (userDocSnap.exists()) {
